@@ -15,6 +15,7 @@ import { sunToTrx } from './tron.js';
 const EXEC_ENABLED = (process.env.EXEC_ENABLED ?? 'false').toLowerCase() === 'true';
 const INTERVAL_MS = Number(process.env.GLIDLY_SWEEP_INTERVAL_MS ?? 60_000);
 const MAX_CYCLES = Number(process.env.GLIDLY_SWEEP_CYCLES ?? 0); // 0 = run forever
+const MAX_RUNTIME_MS = Number(process.env.GLIDLY_MAX_RUNTIME_MS ?? 0); // 0 = unlimited; CI sets this to exit cleanly before job timeout
 const CONFIRM_BUDGET = Number(process.env.GLIDLY_CONFIRM_BUDGET ?? 12); // sims per cycle (RPC budget)
 // JustLend caps rentals at 30 days, so ~35 days of backfill captures EVERY currently-open order.
 const BACKFILL_DAYS = Number(process.env.GLIDLY_BACKFILL_DAYS ?? 35);
@@ -97,6 +98,7 @@ class Sweeper {
       }
     }
     let cycle = 0;
+    const startedAt = Date.now();
     for (;;) {
       try {
         await this.cycle();
@@ -105,6 +107,7 @@ class Sweeper {
       }
       cycle += 1;
       if (MAX_CYCLES && cycle >= MAX_CYCLES) break;
+      if (MAX_RUNTIME_MS && Date.now() - startedAt > MAX_RUNTIME_MS) { log('wall-clock limit reached — exiting cleanly'); break; }
       await new Promise((r) => setTimeout(r, INTERVAL_MS));
     }
     log(`done. paperFires=${this.paperFires} wouldWin=${this.wouldWin} lost=${this.lost} liqSeen=${this.liqSeen} liqUnseen=${this.liqUnseen}`);
