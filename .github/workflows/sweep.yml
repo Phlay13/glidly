@@ -15,7 +15,7 @@ permissions:
 jobs:
   sweep:
     runs-on: ubuntu-latest
-    timeout-minutes: 28
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -34,12 +34,13 @@ jobs:
           TRON_RPC_MIN_INTERVAL_MS: "250"
           TRON_RPC_TIMEOUT_MS: "30000"
           GLIDLY_SWEEP_INTERVAL_MS: "60000"
-          GLIDLY_SWEEP_CYCLES: "20" # ~20-24 min per run, then exit and commit ledger
+          GLIDLY_SWEEP_CYCLES: "10" # ~10-12 min per run, then exit and commit ledger
           # LIVE mode stays off until explicitly enabled with a funded fresh wallet.
           EXEC_ENABLED: "false"
         run: npx tsx src/sweeper.ts
 
       - name: Commit ledger
+        if: always()
         run: |
           git config user.name "glidly-bot"
           git config user.email "glidly-bot@users.noreply.github.com"
