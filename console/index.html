@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GLIDLY · Liquidation Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#192A56; --gold:#F7D794; --deep:#04060D;
+  --glass:rgba(35,58,110,.22); --glass2:rgba(35,58,110,.34);
+  --stroke:rgba(247,215,148,.14); --stroke2:rgba(255,255,255,.09);
+  --text:#EEF1FA; --muted:#8E9BC0; --dim:#5B6890;
+  --green:#3DDC97; --red:#FF6B6B; --amber:#F7D794; --blue:#6FA8FF;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--deep);color:var(--text);min-height:100vh;font-size:14px}
+.bg{position:fixed;inset:0;z-index:-1;background:
+  radial-gradient(1100px 700px at 80% -20%, rgba(25,42,86,.85), transparent 60%),
+  radial-gradient(900px 600px at -10% 30%, rgba(25,42,86,.6), transparent 55%),
+  radial-gradient(700px 500px at 50% 120%, rgba(247,215,148,.07), transparent 60%),
+  linear-gradient(165deg,#0A1226 0%, var(--deep) 60%)}
+.bg::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(247,215,148,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(247,215,148,.03) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,black 20%,transparent 80%)}
+.mono{font-family:'JetBrains Mono',monospace}
+.wrap{max-width:1380px;margin:0 auto;padding:0 18px}
+
+/* ══ top console bar ══ */
+.bar{position:sticky;top:0;z-index:50;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(8,13,28,.78);border-bottom:1px solid var(--stroke)}
+.bar-in{max-width:1380px;margin:0 auto;padding:11px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:9px;font-family:'JetBrains Mono';font-weight:700;font-size:1.05rem;letter-spacing:.12em}
+.logo svg{width:22px;height:22px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono';font-size:.68rem;font-weight:600;letter-spacing:.08em;padding:4px 11px;border-radius:999px;border:1px solid}
+.pill.paper{color:var(--amber);background:rgba(247,215,148,.08);border-color:rgba(247,215,148,.3)}
+.pill.live{color:var(--green);background:rgba(61,220,151,.08);border-color:rgba(61,220,151,.3)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px currentColor}50%{opacity:.3;box-shadow:none}}
+.bar .grow{flex:1}
+.tick{font-family:'JetBrains Mono';font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.tick b{color:var(--gold);font-weight:600}
+.conn{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono';font-size:.68rem;color:var(--green)}
+.conn.err{color:var(--red)}
+.conn .dot{animation-duration:2.2s}
+
+/* ══ kpi strip ══ */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:18px 0 12px}
+.kpi{background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--stroke2);border-radius:14px;padding:13px 15px;position:relative;overflow:hidden;transition:border-color .2s}
+.kpi:hover{border-color:var(--stroke)}
+.kpi::before{content:"";position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(247,215,148,.4),transparent)}
+.kpi .k{font-size:.64rem;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--dim)}
+.kpi .v{font-family:'JetBrains Mono';font-size:1.5rem;font-weight:700;margin-top:4px;background:linear-gradient(180deg,#FFF 20%,var(--gold) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi .v.green{background:linear-gradient(180deg,#B9FFE2,var(--green));-webkit-background-clip:text;background-clip:text}
+.kpi .v.red{background:linear-gradient(180deg,#FFD2D2,var(--red));-webkit-background-clip:text;background-clip:text}
+.kpi .s{font-family:'JetBrains Mono';font-size:.66rem;color:var(--muted);margin-top:2px}
+
+/* ══ panels ══ */
+.grid{display:grid;grid-template-columns:7fr 5fr;gap:12px;margin-bottom:12px}
+.panel{background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--stroke2);border-radius:16px;overflow:hidden}
+.panel-h{display:flex;align-items:center;gap:9px;padding:12px 16px;border-bottom:1px solid var(--stroke2);background:rgba(25,42,86,.25)}
+.panel-h h2{font-family:'JetBrains Mono';font-size:.78rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+.panel-h .cnt{font-family:'JetBrains Mono';font-size:.66rem;color:var(--dim);margin-left:auto}
+.panel-h .ref{width:13px;height:13px;color:var(--dim);animation:spin 1.2s linear infinite;display:none}
+.panel-h.loading .ref{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
+th{font-family:'JetBrains Mono';text-align:left;font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:9px 14px;border-bottom:1px solid var(--stroke2);white-space:nowrap}
+td{padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap;font-family:'JetBrains Mono';font-size:.76rem}
+tr:last-child td{border-bottom:none}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:rgba(247,215,148,.04)}
+tr.flash{animation:flash 1.8s ease-out}
+@keyframes flash{0%{background:rgba(247,215,148,.18)}100%{background:transparent}}
+.addr{color:var(--blue)}
+.r{text-align:right}
+.gold{color:var(--gold)} .green{color:var(--green)} .red{color:var(--red)} .mut{color:var(--muted)} .dim{color:var(--dim)}
+.eta-ripe{color:var(--green);font-weight:700;animation:pulse 1.6s infinite}
+.eta-hot{color:var(--amber);font-weight:600}
+.tag{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:5px;border:1px solid}
+.tag.win{color:var(--green);background:rgba(61,220,151,.09);border-color:rgba(61,220,151,.3)}
+.tag.miss{color:var(--red);background:rgba(255,107,107,.09);border-color:rgba(255,107,107,.28)}
+.tag.fire{color:var(--gold);background:rgba(247,215,148,.09);border-color:rgba(247,215,148,.3)}
+.tag.watch{color:var(--blue);background:rgba(111,168,255,.08);border-color:rgba(111,168,255,.25)}
+.tag.eye{color:#C9A8FF;background:rgba(201,168,255,.08);border-color:rgba(201,168,255,.25)}
+.tag.ret{color:var(--muted);background:rgba(255,255,255,.04);border-color:var(--stroke2)}
+.empty{padding:26px;text-align:center;color:var(--dim);font-family:'JetBrains Mono';font-size:.74rem}
+.scroll{max-height:420px;overflow-y:auto}
+.scroll::-webkit-scrollbar{width:8px}
+.scroll::-webkit-scrollbar-thumb{background:rgba(247,215,148,.15);border-radius:4px}
+.scroll::-webkit-scrollbar-track{background:transparent}
+.foot{padding:14px 4px 26px;display:flex;justify-content:space-between;color:var(--dim);font-family:'JetBrains Mono';font-size:.66rem;flex-wrap:wrap;gap:8px}
+.foot a{color:var(--gold);text-decoration:none}
+@media(max-width:1080px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}}
+@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}.tick.hide-m{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<div class="bar"><div class="bar-in">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5h5L9 22l8.5-11.5h-5L13 2Z" fill="url(#g)" stroke="rgba(247,215,148,.5)" stroke-width=".5"/><defs><linearGradient id="g" x1="4" y1="2" x2="18" y2="22"><stop stop-color="#F7D794"/><stop offset="1" stop-color="#192A56"/></linearGradient></defs></svg>
+    GLIDLY
+  </div>
+  <span class="pill paper" id="modePill"><span class="dot"></span><span id="modeTxt">PAPER</span></span>
+  <div class="grow"></div>
+  <span class="tick hide-m">last sweep <b id="lastSweep">—</b></span>
+  <span class="tick">next sweep <b id="nextSweep">--:--</b></span>
+  <span class="tick hide-m"><b id="utc" class="mono">--:--:--</b> UTC</span>
+  <span class="conn" id="conn"><span class="dot"></span><span id="connTxt">CHAIN LINK</span></span>
+</div></div>
+
+<div class="wrap">
+
+  <div class="kpis">
+    <div class="kpi"><div class="k">Tracked Orders</div><div class="v" id="kTracked">—</div><div class="s">open rentals indexed</div></div>
+    <div class="kpi"><div class="k">Ripe / Queued</div><div class="v green" id="kRipe">—</div><div class="s">liquidatable right now</div></div>
+    <div class="kpi"><div class="k">Market · 24h Liqs</div><div class="v" id="k24">—</div><div class="s" id="k24s">on-chain, all bots</div></div>
+    <div class="kpi"><div class="k">Market · 7d Pool</div><div class="v" id="kPool">—</div><div class="s">TRX paid to liquidators</div></div>
+    <div class="kpi"><div class="k">Paper P&L · 7d</div><div class="v green" id="kPnl">—</div><div class="s">TRX net, simulated</div></div>
+    <div class="kpi"><div class="k">Would-Win / Missed</div><div class="v" id="kWL">—</div><div class="s">bot vs the field</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-h" id="upH"><h2>Upcoming Liquidations</h2><svg class="ref" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/></svg><span class="cnt" id="upCnt">—</span></div>
+      <div class="scroll"><table>
+        <thead><tr><th>Countdown</th><th>Receiver</th><th class="r">Reward</th><th class="r">Est. Net</th><th>State</th></tr></thead>
+        <tbody id="upBody"><tr><td colspan="5" class="empty">connecting to sweep feed…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h" id="feedH"><h2>Live Chain Feed · Liquidations</h2><svg class="ref" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/></svg><span class="cnt" id="feedCnt">—</span></div>
+      <div class="scroll"><table>
+        <thead><tr><th>Age</th><th>Liquidator</th><th class="r">Reward</th></tr></thead>
+        <tbody id="feedBody"><tr><td colspan="3" class="empty">querying TronGrid…</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-h"><h2>Bot Ledger · Decisions</h2><span class="cnt" id="ledCnt">—</span></div>
+      <div class="scroll"><table>
+        <thead><tr><th>When</th><th>Event</th><th class="r">Reward</th><th class="r">Rent</th><th class="r">Net</th><th>Taken By</th></tr></thead>
+        <tbody id="ledBody"><tr><td colspan="6" class="empty">loading ledger…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h" id="rentH"><h2>Live Chain Feed · New Rentals</h2><svg class="ref" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/></svg><span class="cnt" id="rentCnt">—</span></div>
+      <div class="scroll"><table>
+        <thead><tr><th>Age</th><th>Renter</th><th class="r">Deposit</th></tr></thead>
+        <tbody id="rentBody"><tr><td colspan="3" class="empty">querying TronGrid…</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>GLIDLY · JustLend DAO energy-rental liquidation engine · contract <a class="mono" href="https://tronscan.org/#/contract/TU2MJ5Veik1LRAgjeSzEdvmDYx7mefJZvd" target="_blank" rel="noopener">TU2MJ5…JZvd</a></span>
+    <span id="footStat">boot…</span>
+  </div>
+</div>
+
+<script>
+const C = "TU2MJ5Veik1LRAgjeSzEdvmDYx7mefJZvd";
+const TG = "https://api.trongrid.io/v1/contracts/" + C + "/events";
+const RAW = "https://raw.githubusercontent.com/Phlay13/glidly/main/data/";
+const $ = id => document.getElementById(id);
+const fmt = (n, d=1) => Number(n).toLocaleString(undefined, {maximumFractionDigits: d});
+let status = null, chainOk = true;
+
+/* hex (0x…20B) → Tron base58check */
+const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+async function toT(hex){
+  try{
+    if(!hex) return "—";
+    const h = "41" + hex.replace(/^0x/, "");
+    const bytes = new Uint8Array(h.match(/../g).map(x => parseInt(x, 16)));
+    const h1 = await crypto.subtle.digest("SHA-256", bytes);
+    const h2 = new Uint8Array(await crypto.subtle.digest("SHA-256", h1));
+    const full = new Uint8Array(25); full.set(bytes); full.set(h2.slice(0,4), 21);
+    let n = 0n; for(const b of full) n = n*256n + BigInt(b);
+    let s = ""; while(n > 0n){ s = B58[Number(n % 58n)] + s; n /= 58n; }
+    return s;
+  }catch{ return hex.slice(0,10); }
+}
+const shortT = t => t.length > 12 ? t.slice(0,6) + "…" + t.slice(-4) : t;
+function age(ts){ const s=(Date.now()-ts)/1000; if(s<60) return Math.max(1,s|0)+"s"; if(s<3600) return (s/60|0)+"m"; if(s<86400) return (s/3600).toFixed(1)+"h"; return (s/86400).toFixed(1)+"d"; }
+function cd(ms){ if(ms<=0) return {t:"RIPE NOW",c:"eta-ripe"}; const s=ms/1000; if(s<3600) return {t:(s/60|0)+"m "+(s%60|0)+"s",c:"eta-hot"}; if(s<86400) return {t:(s/3600|0)+"h "+((s%3600)/60|0)+"m",c:s<21600?"eta-hot":""}; return {t:(s/86400|0)+"d "+((s%86400)/3600|0)+"h",c:""}; }
+function setConn(ok){ chainOk = ok; $("conn").className = "conn" + (ok ? "" : " err"); $("connTxt").textContent = ok ? "CHAIN LINK" : "CHAIN RETRY"; }
+
+/* ── clock + sweep schedule (cron :07 and :37) ── */
+setInterval(() => {
+  const n = new Date();
+  $("utc").textContent = n.toISOString().slice(11,19);
+  const m = n.getUTCMinutes(), s = n.getUTCSeconds();
+  const next = m < 7 ? 7 : m < 37 ? 37 : 67;
+  const left = (next - m) * 60 - s;
+  $("nextSweep").textContent = (left/60|0) + ":" + String(left%60).padStart(2,"0");
+  document.querySelectorAll("[data-eta]").forEach(el => {
+    const r = cd(Number(el.dataset.eta) - Date.now());
+    el.textContent = r.t; el.className = "mono " + r.c;
+  });
+  document.querySelectorAll("[data-age]").forEach(el => el.textContent = age(Number(el.dataset.age)));
+}, 1000);
+
+/* ── bot status.json ── */
+async function loadStatus(){
+  try{
+    const r = await fetch(RAW + "status.json?t=" + Date.now());
+    if(!r.ok) throw 0;
+    status = await r.json();
+    $("modeTxt").textContent = status.mode;
+    $("modePill").className = "pill " + (status.mode === "LIVE" ? "live" : "paper");
+    $("kTracked").textContent = status.tracking;
+    $("kRipe").textContent = status.ripeNow;
+    $("kWL").textContent = status.wouldWin + " / " + status.missed;
+    $("lastSweep").textContent = age(status.updatedAt) + " ago";
+    const up = (status.upcoming || []).filter(o => !o.fired).sort((a,b) => a.predictedAtMs - b.predictedAtMs);
+    $("upCnt").textContent = up.length + " queued";
+    if(up.length){
+      const rows = await Promise.all(up.map(async o => {
+        const recv = shortT(await toT(o.receiver));
+        const ripe = o.predictedAtMs <= Date.now();
+        return `<tr>
+          <td><span class="mono" data-eta="${o.predictedAtMs}">…</span></td>
+          <td class="addr">${recv}</td>
+          <td class="r gold">${fmt(o.rewardTrx)} TRX</td>
+          <td class="r ${o.netTrx >= 0 ? "green" : "red"}">${o.netTrx >= 0 ? "+" : ""}${fmt(o.netTrx)}</td>
+          <td><span class="tag ${ripe ? "fire" : "watch"}">${ripe ? "QUEUED" : "TRACKING"}</span></td>
+        </tr>`;
+      }));
+      $("upBody").innerHTML = rows.join("");
+    } else $("upBody").innerHTML = '<tr><td colspan="5" class="empty">no open orders approaching liquidation</td></tr>';
+  }catch{
+    $("upBody").innerHTML = '<tr><td colspan="5" class="empty">sweep feed publishes after next GitHub run — chain feeds below are live</td></tr>';
+  }
+}
+
+/* ── bot ledger ── */
+async function loadLedger(){
+  try{
+    const r = await fetch(RAW + "sweeper-ledger.jsonl?t=" + Date.now());
+    if(!r.ok) throw 0;
+    const rows = (await r.text()).trim().split("\n").filter(Boolean).map(l => { try{return JSON.parse(l)}catch{return null} }).filter(Boolean);
+    const wk = Date.now() - 7*86400e3;
+    let pnl = 0;
+    rows.forEach(e => { if((e.type === "paper_fire" || e.type === "live_fire") && e.ts >= wk) pnl += (e.netTrx || 0); });
+    $("kPnl").textContent = (pnl >= 0 ? "+" : "") + fmt(pnl);
+    $("ledCnt").textContent = rows.length + " entries";
+    const tag = {would_win:'<span class="tag win">WOULD-WIN</span>',missed:'<span class="tag miss">MISSED</span>',paper_fire:'<span class="tag fire">PAPER FIRE</span>',live_fire:'<span class="tag fire">LIVE FIRE</span>',unseen_liq:'<span class="tag eye">UNSEEN</span>',returned:'<span class="tag ret">RETURNED</span>'};
+    const rec = rows.slice(-60).reverse();
+    const html = await Promise.all(rec.map(async e => {
+      const by = e.takenBy ? shortT(e.takenBy.startsWith("T") ? e.takenBy : await toT(e.takenBy)) : "—";
+      return `<tr>
+        <td class="dim" data-age="${e.ts}">${age(e.ts)}</td>
+        <td>${tag[e.type] || e.type}</td>
+        <td class="r gold">${e.rewardTrx != null ? fmt(e.rewardTrx) : e.wouldBeRewardTrx != null ? fmt(e.wouldBeRewardTrx) : "—"}</td>
+        <td class="r mut">${e.rentTrx != null ? fmt(e.rentTrx) : "—"}</td>
+        <td class="r ${e.netTrx >= 0 ? "green" : ""}">${e.netTrx != null ? "+" + fmt(e.netTrx) : "—"}</td>
+        <td class="addr">${by}</td>
+      </tr>`;
+    }));
+    $("ledBody").innerHTML = html.length ? html.join("") : '<tr><td colspan="6" class="empty">ledger empty — sweep just started</td></tr>';
+  }catch{ $("ledBody").innerHTML = '<tr><td colspan="6" class="empty">ledger publishes with the next sweep commit</td></tr>'; }
+}
+
+/* ── LIVE on-chain feeds (direct TronGrid, no backend) ── */
+let seenLiq = new Set(), seenRent = new Set();
+async function loadChain(){
+  $("feedH").classList.add("loading"); $("rentH").classList.add("loading");
+  try{
+    const since24 = Date.now() - 86400e3, since7d = Date.now() - 7*86400e3;
+    const [liqR, rentR] = await Promise.all([
+      fetch(TG + "?event_name=Liquidate&limit=200&min_block_timestamp=" + since7d + "&order_by=block_timestamp,desc"),
+      fetch(TG + "?event_name=RentResource&limit=60&order_by=block_timestamp,desc"),
+    ]);
+    const liqs = (await liqR.json()).data || [];
+    const rents = (await rentR.json()).data || [];
+    setConn(true);
+
+    const l24 = liqs.filter(e => e.block_timestamp >= since24);
+    const pool7 = liqs.reduce((a,e) => a + Number(e.result.liquidateFee || 0)/1e6, 0);
+    $("k24").textContent = l24.length;
+    $("k24s").textContent = fmt(l24.reduce((a,e) => a + Number(e.result.liquidateFee||0)/1e6,0)) + " TRX paid today";
+    $("kPool").textContent = fmt(pool7, 0);
+    $("feedCnt").textContent = liqs.length + " in 7d";
+    $("rentCnt").textContent = "last " + rents.length;
+
+    const lh = await Promise.all(liqs.slice(0,30).map(async e => {
+      const id = e.transaction_id + e.event_index, fresh = !seenLiq.has(id) && seenLiq.size > 0;
+      seenLiq.add(id);
+      const who = shortT(await toT(e.result.liquidator || e.result["0"]));
+      return `<tr${fresh ? ' class="flash"' : ''}>
+        <td class="dim" data-age="${e.block_timestamp}">${age(e.block_timestamp)}</td>
+        <td class="addr">${who}</td>
+        <td class="r gold">${fmt(Number(e.result.liquidateFee||0)/1e6)} TRX</td>
+      </tr>`;
+    }));
+    $("feedBody").innerHTML = lh.join("") || '<tr><td colspan="3" class="empty">no liquidations in window</td></tr>';
+
+    const rh = await Promise.all(rents.slice(0,30).map(async e => {
+      const id = e.transaction_id + e.event_index, fresh = !seenRent.has(id) && seenRent.size > 0;
+      seenRent.add(id);
+      const who = shortT(await toT(e.result.renter || e.result["0"]));
+      const dep = Number(e.result.securityDeposit || 0)/1e6;
+      return `<tr${fresh ? ' class="flash"' : ''}>
+        <td class="dim" data-age="${e.block_timestamp}">${age(e.block_timestamp)}</td>
+        <td class="addr">${who}</td>
+        <td class="r mut">${fmt(dep,0)} TRX</td>
+      </tr>`;
+    }));
+    $("rentBody").innerHTML = rh.join("") || '<tr><td colspan="3" class="empty">—</td></tr>';
+  }catch(e){ setConn(false); }
+  $("feedH").classList.remove("loading"); $("rentH").classList.remove("loading");
+  $("footStat").textContent = "chain " + (chainOk ? "OK" : "RETRY") + " · refreshed " + new Date().toISOString().slice(11,19) + " UTC · auto 30s";
+}
+
+loadStatus(); loadLedger(); loadChain();
+setInterval(loadChain, 30000);
+setInterval(() => { loadStatus(); loadLedger(); }, 90000);
+</script>
+</body>
+</html>
