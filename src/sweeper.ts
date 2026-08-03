@@ -26,6 +26,7 @@ const WHALE_LOG_TRX = Number(process.env.GLIDLY_WHALE_LOG_TRX ?? 100); // log re
 // Highlight specific orders by address prefix (e.g. GLIDLY_WATCH=0xd77656,0xea2748 for snapshot row 1).
 const WATCH = (process.env.GLIDLY_WATCH ?? '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 const LEDGER = path.join(path.resolve(config.dataDir), 'sweeper-ledger.jsonl');
+const STATUS = path.join(path.resolve(config.dataDir), 'status.json');
 
 /** Cost to rent the energy a single liquidation needs (null energy ⇒ assume worst-case 230k). */
 function rentCostTrx(energyUsed: number | null): number {
@@ -303,6 +304,27 @@ class Sweeper {
     const next = upcoming.find((o) => (o.predictedAtMs as number) > now);
     const nextEta = next ? `${fmtEta((next.predictedAtMs as number) - now)} (${next.rewardTrx.toFixed(0)} TRX)` : 'none';
     log(`watch=${this.orders.size} ripe<1h=${soon} next=${nextEta} | fires=${this.paperFires} win=${this.wouldWin} lost=${this.lost} liqSeen=${this.liqSeen} unseen=${this.liqUnseen}`);
+    // Snapshot for the dashboard (committed to the repo alongside the ledger).
+    const status = {
+      updatedAt: now,
+      mode: EXEC_ENABLED ? 'LIVE' : 'PAPER',
+      tracking: this.orders.size,
+      ripeNow: upcoming.filter((o) => (o.predictedAtMs as number) <= now).length,
+      fires: this.paperFires,
+      wouldWin: this.wouldWin,
+      missed: this.lost,
+      liqSeen: this.liqSeen,
+      liqUnseen: this.liqUnseen,
+      upcoming: upcoming.slice(0, 25).map((o) => ({
+        renter: o.renter,
+        receiver: o.receiver,
+        predictedAtMs: o.predictedAtMs,
+        rewardTrx: Number(o.rewardTrx.toFixed(2)),
+        netTrx: Number((o.rewardTrx - rentCostTrx(null)).toFixed(2)),
+        fired: o.fired,
+      })),
+    };
+    try { fs.writeFileSync(STATUS, JSON.stringify(status, null, 1)); } catch { /* non-fatal */ }
   }
 }
 

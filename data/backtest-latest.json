@@ -1,0 +1,131 @@
+{
+  "generatedAt": "2026-08-03T18:34:53.431Z",
+  "days": 7,
+  "scored": 13,
+  "noSnapshot": 91,
+  "feeMatchRate": 0.9230769230769231,
+  "medianDeltaMs": 316264000,
+  "winnableByReaction": {
+    "0ms": {
+      "total": 12,
+      "floor": 10
+    },
+    "3000ms": {
+      "total": 12,
+      "floor": 10
+    },
+    "6000ms": {
+      "total": 12,
+      "floor": 10
+    },
+    "15000ms": {
+      "total": 12,
+      "floor": 10
+    },
+    "30000ms": {
+      "total": 12,
+      "floor": 10
+    },
+    "60000ms": {
+      "total": 12,
+      "floor": 10
+    },
+    "300000ms": {
+      "total": 12,
+      "floor": 10
+    }
+  },
+  "rows": [
+    {
+      "who": "TEFVYGkweofAr7H5wQuK8v7MjrTe3MpwpE",
+      "rewardTrxActual": 20,
+      "rewardTrxPredicted": 20,
+      "deltaMs": 130489000,
+      "isFloor": true
+    },
+    {
+      "who": "TJ6Ek7BF5adpkUGZXbb1rS8yRdF28z8Xvi",
+      "rewardTrxActual": 20,
+      "rewardTrxPredicted": 20,
+      "deltaMs": 223468000,
+      "isFloor": true
+    },
+    {
+      "who": "TJ6Ek7BF5adpkUGZXbb1rS8yRdF28z8Xvi",
+      "rewardTrxActual": 20,
+      "rewardTrxPredicted": 20,
+      "deltaMs": 238409000,
+      "isFloor": true
+    },
+    {
+      "who": "TJ6Ek7BF5adpkUGZXbb1rS8yRdF28z8Xvi",
+      "rewardTrxActual": 20,
+      "rewardTrxPredicted": 20,
+      "deltaMs": -288471000,
+      "isFloor": true
+    },
+    {
+      "who": "TEFVYGkweofAr7H5wQuK8v7MjrTe3MpwpE",
+      "rewardTrxActual": 458.76512,
+      "rewardTrxPredicted": 375.36352,
+      "deltaMs": 80747000,
+      "isFloor": false
+    },
+    {
+      "who": "TJ6Ek7BF5adpkUGZXbb1rS8yRdF28z8Xvi",
+      "rewardTrxActual": 20,
+      "rewardTrxPredicted": 20,
+      "deltaMs": 316264000,
+      "isFloor": true
+    },
+    {
+      "who": "TEFVYGkweofAr7H5wQuK8v7MjrTe3MpwpE",
+      "rewardTrxActual": 20,
+      "rewardTrxPredicted": 20,
+      "deltaMs": 363012000,
+      "isFloor": true
+    },
+    {
+      "who": "TJ6Ek7BF5adpkUGZXbb1rS8yRdF28z8Xvi",
+      "rewardTrxActual": 20,
+      "rewardTrxPredicted": 20,
+      "deltaMs": 448377000,
+      "isFloor": true
+    },
+    {
+      "who": "TJ6Ek7BF5adpkUGZXbb1rS8yRdF28z8Xvi",
+      "rewardTrxActual": 24.19352,
+      "rewardTrxPredicted": 24.19352,
+      "deltaMs": 136863000,
+      "isFloor": false
+    },
+    {
+      "who": "TJ6Ek7BF5adpkUGZXbb1rS8yRdF28z8Xvi",
+      "rewardTrxActual": 20,
+      "rewardTrxPredicted": 20,
+      "deltaMs": 642063000,
+      "isFloor": true
+    },
+    {
+      "who": "TTNjf93NTuiae8gmBeeXHmGFrvVQGuSek3",
+      "rewardTrxActual": 20,
+      "rewardTrxPredicted": 20,
+      "deltaMs": 707940000,
+      "isFloor": true
+    },
+    {
+      "who": "TJ6Ek7BF5adpkUGZXbb1rS8yRdF28z8Xvi",
+      "rewardTrxActual": 20,
+      "rewardTrxPredicted": 20,
+      "deltaMs": 637551000,
+      "isFloor": true
+    },
+    {
+      "who": "TJ6Ek7BF5adpkUGZXbb1rS8yRdF28z8Xvi",
+      "rewardTrxActual": 20,
+      "rewardTrxPredicted": 20,
+      "deltaMs": 727386000,
+      "isFloor": true
+    }
+  ]
+}

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glidly — JustLend Liquidation Sweeper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep: #050505;
+    --royal: #3A0CA3;
+    --royal-soft: rgba(58, 12, 163, 0.35);
+    --glass: rgba(255, 255, 255, 0.055);
+    --glass-strong: rgba(255, 255, 255, 0.09);
+    --stroke: rgba(255, 255, 255, 0.12);
+    --text: #F4F2FF;
+    --muted: #A79FCB;
+    --green: #34D399;
+    --red: #F87171;
+    --amber: #FBBF24;
+    --violet: #A78BFA;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--text);
+    background: var(--deep);
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  /* ambient gradient field */
+  .bg {
+    position: fixed; inset: 0; z-index: -1;
+    background:
+      radial-gradient(900px 600px at 15% -10%, var(--royal-soft), transparent 60%),
+      radial-gradient(700px 500px at 90% 20%, rgba(58,12,163,0.22), transparent 55%),
+      radial-gradient(800px 700px at 50% 110%, rgba(58,12,163,0.18), transparent 60%),
+      linear-gradient(160deg, #0B0618 0%, var(--deep) 55%);
+  }
+  .bg::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 34px 34px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 75%);
+  }
+  h1,h2,h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+  /* nav */
+  nav {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    width: min(1120px, calc(100% - 32px));
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 22px; z-index: 50;
+    background: rgba(10, 6, 24, 0.55);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--stroke); border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: 'Space Grotesk'; font-weight: 700; font-size: 1.15rem; }
+  .brand svg { width: 26px; height: 26px; }
+  nav .links { display: flex; gap: 6px; }
+  nav a {
+    color: var(--muted); text-decoration: none; font-size: 0.86rem; font-weight: 500;
+    padding: 7px 14px; border-radius: 10px; transition: color .2s, background .2s; cursor: pointer;
+  }
+  nav a:hover { color: var(--text); background: var(--glass-strong); }
+  .mode-pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 0.76rem; font-weight: 600; letter-spacing: 0.06em;
+    padding: 6px 13px; border-radius: 999px;
+    background: rgba(52, 211, 153, 0.12); color: var(--green);
+    border: 1px solid rgba(52, 211, 153, 0.25);
+  }
+  .mode-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.35 } }
+
+  /* hero */
+  header { padding: 138px 0 46px; text-align: center; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--violet); background: rgba(167, 139, 250, 0.09);
+    border: 1px solid rgba(167, 139, 250, 0.22);
+    padding: 7px 16px; border-radius: 999px; margin-bottom: 22px;
+  }
+  header h1 { font-size: clamp(2.2rem, 5.4vw, 3.6rem); font-weight: 700; line-height: 1.12; }
+  header h1 .grad {
+    background: linear-gradient(92deg, #C4B5FD 0%, #7C4DFF 50%, #5B21B6 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  header p.sub { color: var(--muted); max-width: 620px; margin: 18px auto 0; font-size: 1.02rem; }
+
+  /* glass cards */
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--stroke);
+    border-radius: 20px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 40px rgba(0,0,0,0.3);
+    position: relative; overflow: hidden;
+  }
+  .glass::before {
+    content: ""; position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  }
+
+  /* stats row */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 40px; }
+  .stat { padding: 22px 20px; text-align: left; transition: transform .25s, border-color .25s; }
+  .stat:hover { border-color: rgba(167,139,250,0.35); }
+  .stat .label { font-size: 0.74rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display:flex; align-items:center; gap:7px; }
+  .stat .label svg { width: 14px; height: 14px; opacity: .8; }
+  .stat .value { font-family: 'Space Grotesk'; font-size: 2rem; font-weight: 700; margin-top: 8px; }
+  .stat .hint { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .stat .value.green { color: var(--green); } .stat .value.amber { color: var(--amber); } .stat .value.violet { color: var(--violet); }
+
+  section { padding: 44px 0 8px; }
+  .sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 8px; }
+  .sec-head h2 { font-size: 1.45rem; }
+  .sec-head .note { color: var(--muted); font-size: 0.85rem; }
+
+  /* tables */
+  .tbl-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 640px; }
+  thead th {
+    text-align: left; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--muted); padding: 14px 18px; border-bottom: 1px solid var(--stroke);
+  }
+  tbody td { padding: 13px 18px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  tbody tr { transition: background .18s; }
+  tbody tr:hover { background: rgba(255,255,255,0.035); }
+  tbody tr:last-child td { border-bottom: none; }
+  .mono { font-family: 'Space Grotesk', monospace; font-weight: 500; }
+  .addr { color: var(--muted); font-size: 0.82rem; }
+  .eta-soon { color: var(--amber); font-weight: 600; }
+  .eta-ripe { color: var(--green); font-weight: 700; }
+  .pos { color: var(--green); font-weight: 600; } .neg { color: var(--red); font-weight: 600; }
+
+  .badge { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 999px; }
+  .badge.win  { background: rgba(52,211,153,0.13); color: var(--green); border: 1px solid rgba(52,211,153,0.28); }
+  .badge.miss { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.26); }
+  .badge.fire { background: rgba(167,139,250,0.13); color: var(--violet); border: 1px solid rgba(167,139,250,0.3); }
+  .badge.eye  { background: rgba(251,191,36,0.12); color: var(--amber); border: 1px solid rgba(251,191,36,0.26); }
+  .badge.ret  { background: rgba(255,255,255,0.07); color: var(--muted); border: 1px solid var(--stroke); }
+
+  /* thesis panel */
+  .thesis { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; }
+  .thesis .glass { padding: 26px; }
+  .thesis h3 { font-size: 1.05rem; margin-bottom: 14px; }
+  .bars { display: flex; flex-direction: column; gap: 10px; }
+  .bar-row { display: grid; grid-template-columns: 88px 1fr 74px; align-items: center; gap: 12px; font-size: 0.82rem; }
+  .bar-row .who { color: var(--muted); }
+  .bar-track { height: 10px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #5B21B6, #A78BFA); }
+  .bar-row .val { text-align: right; font-family: 'Space Grotesk'; font-weight: 600; }
+  .verdict { margin-top: 18px; padding: 14px 16px; border-radius: 14px; background: rgba(52,211,153,0.07); border: 1px solid rgba(52,211,153,0.2); font-size: 0.86rem; }
+  .verdict strong { color: var(--green); }
+  .klist { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .klist li { display: flex; gap: 12px; font-size: 0.88rem; color: var(--muted); }
+  .klist li svg { flex: none; width: 18px; height: 18px; margin-top: 2px; color: var(--violet); }
+  .klist li b { color: var(--text); font-weight: 600; }
+
+  footer { margin-top: 56px; padding: 26px 0 34px; border-top: 1px solid rgba(255,255,255,0.06); }
+  footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; color: var(--muted); font-size: 0.8rem; }
+  footer a { color: var(--violet); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  .stamp { font-size: 0.78rem; color: var(--muted); }
+
+  .skel { color: transparent !important; background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.12), rgba(255,255,255,0.05)); background-size: 200% 100%; animation: sh 1.4s infinite; border-radius: 8px; }
+  @keyframes sh { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
+  .empty { padding: 26px 18px; text-align: center; color: var(--muted); font-size: 0.88rem; }
+
+  @media (max-width: 860px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .thesis { grid-template-columns: 1fr; }
+    nav .links { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<nav>
+  <div class="brand">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5h5L9 22l8.5-11.5h-5L13 2Z" fill="url(#lg)" stroke="rgba(255,255,255,.35)" stroke-width=".6" stroke-linejoin="round"/><defs><linearGradient id="lg" x1="4" y1="2" x2="18" y2="22"><stop stop-color="#A78BFA"/><stop offset="1" stop-color="#3A0CA3"/></linearGradient></defs></svg>
+    Glidly
+  </div>
+  <div class="links">
+    <a href="#upcoming">Upcoming</a>
+    <a href="#activity">Activity</a>
+    <a href="#thesis">Thesis</a>
+  </div>
+  <span class="mode-pill" id="modePill"><span class="dot"></span><span id="modeText">PAPER</span></span>
+</nav>
+
+<header>
+  <div class="wrap">
+    <span class="eyebrow">JustLend DAO &middot; Tron Energy Market</span>
+    <h1>The liquidation sweep,<br><span class="grad">measured before it's traded.</span></h1>
+    <p class="sub">Glidly indexes every open energy-rental order on JustLend, predicts the exact moment each becomes liquidatable, and sweeps — hours ahead of incumbents who show up days late.</p>
+
+    <div class="stats">
+      <div class="glass stat">
+        <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Tracked Orders</div>
+        <div class="value violet" id="stTracking"><span class="skel">00</span></div>
+        <div class="hint">open rentals indexed</div>
+      </div>
+      <div class="glass stat">
+        <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 4.5 13.5h5L9 22l8.5-11.5h-5L13 2Z"/></svg>Paper Fires</div>
+        <div class="value" id="stFires"><span class="skel">00</span></div>
+        <div class="hint">simulated liquidations</div>
+      </div>
+      <div class="glass stat">
+        <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m5 13 4 4L19 7"/></svg>Would-Have-Won</div>
+        <div class="value green" id="stWins"><span class="skel">00</span></div>
+        <div class="hint">fired before the real winner</div>
+      </div>
+      <div class="glass stat">
+        <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v13m0 0 -4-4m4 4 4-4M4 21h16"/></svg>Projected Net</div>
+        <div class="value amber" id="stNet"><span class="skel">00</span></div>
+        <div class="hint">TRX, rewards − rent costs</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="upcoming">
+    <div class="sec-head">
+      <h2>Upcoming Liquidations</h2>
+      <span class="note">predicted from on-chain deposit drain &middot; sorted by ETA</span>
+    </div>
+    <div class="glass tbl-wrap">
+      <table>
+        <thead><tr><th>ETA</th><th>Renter</th><th>Receiver</th><th>Reward</th><th>Est. Net</th><th>Status</th></tr></thead>
+        <tbody id="upBody"><tr><td colspan="6" class="empty">Loading live data…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="activity">
+    <div class="sec-head">
+      <h2>Liquidation Activity</h2>
+      <span class="note">settled events from the sweep ledger — newest first</span>
+    </div>
+    <div class="glass tbl-wrap">
+      <table>
+        <thead><tr><th>When</th><th>Event</th><th>Order</th><th>Reward</th><th>Net</th><th>Taken By</th></tr></thead>
+        <tbody id="ledBody"><tr><td colspan="6" class="empty">Loading ledger…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="thesis">
+    <div class="sec-head">
+      <h2>The Thesis, Proven On-Chain</h2>
+      <span class="note">7-day shadow backtest &middot; regenerated from raw events</span>
+    </div>
+    <div class="thesis">
+      <div class="glass">
+        <h3>How long rewards sat unclaimed before the winner struck</h3>
+        <div class="bars" id="sitBars"><span class="skel" style="display:block;height:120px"></span></div>
+        <div class="verdict" id="verdict">Loading backtest…</div>
+      </div>
+      <div class="glass">
+        <h3>Why this works</h3>
+        <ul class="klist">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><b>Not a race — a sweep.</b> Liquidatable orders sit for hours to days. Checking every few minutes beats bots that check daily.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span><b>Simulate before firing.</b> Every shot is confirmed via on-chain simulation first — reward, energy cost, and net profit known in advance.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v13m0 0-4-4m4 4 4-4M4 21h16"/></svg><span><b>Rent energy on demand.</b> ~5–13 TRX rent per shot vs 20–460 TRX rewards. No stake needed to start; profits compound toward one.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span><b>Hard guardrails.</b> feeLimit=0 (never burn TRX on a failed race), net-profit gate before every fire, paper mode by default.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Glidly &middot; autonomous JustLend energy-rental liquidation sweeper</span>
+    <span class="stamp" id="stamp">last sweep: —</span>
+  </div>
+</footer>
+
+<script>
+const RAW = "https://raw.githubusercontent.com/Phlay13/glidly/main/data/";
+const $ = (id) => document.getElementById(id);
+const short = (a) => a ? a.slice(0, 6) + "…" + a.slice(-4) : "—";
+const trx = (n) => Number(n).toLocaleString(undefined, { maximumFractionDigits: 1 });
+
+function fmtEta(ms) {
+  if (ms <= 0) return { txt: "RIPE NOW", cls: "eta-ripe" };
+  const m = ms / 60000;
+  if (m < 60) return { txt: Math.round(m) + "m", cls: "eta-soon" };
+  const h = m / 60;
+  if (h < 48) return { txt: h.toFixed(1) + "h", cls: h < 6 ? "eta-soon" : "" };
+  return { txt: (h / 24).toFixed(1) + "d", cls: "" };
+}
+function ago(ts) {
+  const s = (Date.now() - ts) / 1000;
+  if (s < 90) return "just now";
+  if (s < 3600) return Math.round(s / 60) + "m ago";
+  if (s < 86400) return (s / 3600).toFixed(1) + "h ago";
+  return (s / 86400).toFixed(1) + "d ago";
+}
+
+async function loadStatus() {
+  try {
+    const s = await (await fetch(RAW + "status.json?" + Date.now())).json();
+    $("stTracking").textContent = s.tracking;
+    $("stFires").textContent = s.fires;
+    $("stWins").textContent = s.wouldWin;
+    $("modeText").textContent = s.mode;
+    $("stamp").textContent = "last sweep: " + ago(s.updatedAt) + " · would-win " + s.wouldWin + " / missed " + s.missed;
+    const up = (s.upcoming || []).filter(o => !o.fired);
+    $("upBody").innerHTML = up.length ? up.map(o => {
+      const e = fmtEta(o.predictedAtMs - Date.now());
+      const net = o.netTrx;
+      return `<tr>
+        <td class="mono ${e.cls}">${e.txt}</td>
+        <td class="addr mono">${short(o.renter)}</td>
+        <td class="addr mono">${short(o.receiver)}</td>
+        <td class="mono">${trx(o.rewardTrx)} TRX</td>
+        <td class="mono ${net >= 0 ? "pos" : "neg"}">${net >= 0 ? "+" : ""}${trx(net)} TRX</td>
+        <td>${e.cls === "eta-ripe" ? '<span class="badge fire">QUEUED</span>' : '<span class="badge ret">WATCHING</span>'}</td>
+      </tr>`;
+    }).join("") : '<tr><td colspan="6" class="empty">No upcoming liquidations tracked yet.</td></tr>';
+  } catch { $("upBody").innerHTML = '<tr><td colspan="6" class="empty">Status feed unavailable — next sweep will publish it.</td></tr>'; }
+}
+
+async function loadLedger() {
+  try {
+    const txt = await (await fetch(RAW + "sweeper-ledger.jsonl?" + Date.now())).text();
+    const rows = txt.trim().split("\n").filter(Boolean).map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+    let net = 0;
+    rows.forEach(r => { if (r.type === "paper_fire" || r.type === "live_fire") net += (r.netTrx || 0); });
+    $("stNet").textContent = (net >= 0 ? "+" : "") + trx(net);
+    const badge = { would_win: '<span class="badge win">WOULD-WIN</span>', missed: '<span class="badge miss">MISSED</span>', paper_fire: '<span class="badge fire">PAPER FIRE</span>', live_fire: '<span class="badge fire">LIVE FIRE</span>', unseen_liq: '<span class="badge eye">UNSEEN</span>', returned: '<span class="badge ret">RETURNED</span>' };
+    const recent = rows.slice(-40).reverse();
+    $("ledBody").innerHTML = recent.length ? recent.map(r => `<tr>
+      <td class="addr">${ago(r.ts)}</td>
+      <td>${badge[r.type] || r.type}</td>
+      <td class="addr mono">${(r.key || "").slice(0, 10)}…</td>
+      <td class="mono">${r.rewardTrx != null ? trx(r.rewardTrx) + " TRX" : (r.wouldBeRewardTrx != null ? trx(r.wouldBeRewardTrx) + " TRX" : "—")}</td>
+      <td class="mono ${r.netTrx >= 0 ? "pos" : ""}">${r.netTrx != null ? "+" + trx(r.netTrx) + " TRX" : "—"}</td>
+      <td class="addr mono">${r.takenBy ? short(r.takenBy) : "—"}</td>
+    </tr>`).join("") : '<tr><td colspan="6" class="empty">Ledger is empty — the sweep just started.</td></tr>';
+  } catch { $("ledBody").innerHTML = '<tr><td colspan="6" class="empty">Ledger not published yet.</td></tr>'; }
+}
+
+async function loadBacktest() {
+  try {
+    const b = await (await fetch(RAW + "backtest-latest.json?" + Date.now())).json();
+    const rows = (b.rows || []).filter(r => r.deltaMs != null && r.deltaMs > 0)
+      .sort((x, y) => y.deltaMs - x.deltaMs).slice(0, 8);
+    const max = Math.max(...rows.map(r => r.deltaMs), 1);
+    $("sitBars").innerHTML = rows.map(r => {
+      const h = r.deltaMs / 3600000;
+      return `<div class="bar-row">
+        <span class="who mono">${short(r.who)}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(4, (r.deltaMs / max) * 100)}%"></div></div>
+        <span class="val">${h >= 48 ? (h / 24).toFixed(1) + "d" : h.toFixed(1) + "h"}</span>
+      </div>`;
+    }).join("");
+    const med = b.medianDeltaMs != null ? b.medianDeltaMs / 3600000 : null;
+    $("verdict").innerHTML = `<strong>Confirmed:</strong> across ${b.scored} scored liquidations in the last ${b.days || 7} days, the winner struck a <strong>median ${med ? (med >= 48 ? (med/24).toFixed(1) + " days" : med.toFixed(1) + " hours") : "—"}</strong> after the order became liquidatable. This is a slow sweep, not a millisecond race.`;
+  } catch { $("verdict").textContent = "Backtest data not published yet — regenerated with each weekly run."; }
+}
+
+loadStatus(); loadLedger(); loadBacktest();
+setInterval(() => { loadStatus(); loadLedger(); }, 120000);
+</script>
+</body>
+</html>

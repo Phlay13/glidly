@@ -4,4 +4,6 @@ dist/
 data/*.json
 data/*.jsonl
 !data/sweeper-ledger.jsonl
+!data/status.json
+!data/backtest-latest.json
 *.log
