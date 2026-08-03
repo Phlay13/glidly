@@ -1,0 +1,33 @@
+{
+  "name": "glidly",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Glidly — JustLend energy-rental liquidation bot (successor to G-1159)",
+  "type": "module",
+  "scripts": {
+    "phase0": "tsx src/index.ts",
+    "weekly": "tsx src/weekly-report.ts",
+    "receipts": "tsx src/measure-receipts.ts",
+    "backtest": "tsx src/backtest.ts",
+    "calibrate": "tsx src/calibrate.ts",
+    "sweep": "tsx src/sweeper.ts",
+    "monitor": "tsx src/monitor.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@noble/curves": "^1.9.1",
+    "@noble/hashes": "^1.8.0",
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.5",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

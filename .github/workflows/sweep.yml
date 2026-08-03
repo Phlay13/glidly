@@ -1,0 +1,49 @@
+name: glidly-sweep
+
+on:
+  schedule:
+    - cron: "7,37 * * * *" # every 30 min (GitHub adds its own delay)
+  workflow_dispatch: {}
+
+concurrency:
+  group: sweep
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run sweeper (bounded cycles, ledger persisted in repo)
+        env:
+          # Free endpoint by default; add paid RPCs as repo secrets and they take precedence.
+          TRON_HTTP_ENDPOINTS: ${{ secrets.TRON_HTTP_ENDPOINTS || 'https://api.trongrid.io' }}
+          TRON_EVENT_ENDPOINTS: ${{ secrets.TRON_EVENT_ENDPOINTS || 'https://api.trongrid.io' }}
+          TRON_RPC_MIN_INTERVAL_MS: "250"
+          TRON_RPC_TIMEOUT_MS: "30000"
+          GLIDLY_SWEEP_INTERVAL_MS: "60000"
+          GLIDLY_SWEEP_CYCLES: "20" # ~20-24 min per run, then exit and commit ledger
+          # LIVE mode stays off until explicitly enabled with a funded fresh wallet.
+          EXEC_ENABLED: "false"
+        run: npx tsx src/sweeper.ts
+
+      - name: Commit ledger
+        run: |
+          git config user.name "glidly-bot"
+          git config user.email "glidly-bot@users.noreply.github.com"
+          git add data/sweeper-ledger.jsonl || true
+          git diff --cached --quiet || git commit -m "sweep: ledger update $(date -u +%Y-%m-%dT%H:%MZ)"
+          git pull --rebase origin main || true
+          git push

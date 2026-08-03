@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+data/*.json
+data/*.jsonl
+!data/sweeper-ledger.jsonl
+*.log
