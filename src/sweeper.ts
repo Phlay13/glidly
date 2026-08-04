@@ -273,7 +273,23 @@ class Sweeper {
 
     for (const o of ripe) {
       const sim = await this.reader.simulateLiquidate(o.renter, o.receiver, o.resourceType);
-      if (!sim.ok) continue;
+      if (!sim.ok) {
+        // Prediction was stale — renters top up deposits without emitting events we index.
+        // Refresh the real order state from the chain and re-predict honestly.
+        const info = await this.reader.getRentInfo(o.renter, o.receiver, o.resourceType);
+        if (!info || info.securityDepositSun <= 0n) {
+          log(`✂ closed on-chain: ${o.key.slice(0, 10)}… (deposit 0) — dropping`);
+          this.orders.delete(o.key);
+        } else {
+          o.depositSun = info.securityDepositSun;
+          o.rentIndex = info.rentIndex;
+          o.snapshotAtMs = now;
+          this.predict(o, mp, now);
+          const eta = o.predictedAtMs ? fmtEta(o.predictedAtMs - now) : '∞';
+          log(`↻ refreshed ${o.key.slice(0, 10)}… deposit=${sunToTrx(info.securityDepositSun).toFixed(0)} TRX → real ETA ${eta}`);
+        }
+        continue;
+      }
       const rent = rentCostTrx(sim.energyUsed);
       const net = sim.rewardTrx - rent;
       if (net < MIN_NET_TRX) {

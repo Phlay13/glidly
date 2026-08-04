@@ -1,26 +1,66 @@
 {
- "updatedAt": 1785814829311,
+ "updatedAt": 1785863234689,
  "mode": "PAPER",
- "tracking": 19,
- "ripeNow": 10,
+ "tracking": 17,
+ "ripeNow": 0,
  "fires": 0,
  "wouldWin": 0,
- "missed": 0,
- "liqSeen": 1,
- "liqUnseen": 1,
+ "missed": 4,
+ "liqSeen": 7,
+ "liqUnseen": 3,
  "upcoming": [
   {
    "renter": "0xdd6ea6647f89bfdb690d207d15c0496dd64a7df1",
    "receiver": "0x6be35b3c719700cf3719bf2f0bf3620751ea9529",
-   "predictedAtMs": 1785814829311,
+   "predictedAtMs": 1785887109689,
    "rewardTrx": 2464.87,
    "netTrx": 2452.22,
    "fired": false
   },
   {
    "renter": "0xf60d8348d623ad81a0edea4fb57f885689ce8a0d",
+   "receiver": "0xcc4560175197519db277d3f25f3e33a8d15b3ba4",
+   "predictedAtMs": 1785916813689,
+   "rewardTrx": 84.3,
+   "netTrx": 71.65,
+   "fired": false
+  },
+  {
+   "renter": "0xf60d8348d623ad81a0edea4fb57f885689ce8a0d",
+   "receiver": "0xd626f7fbd91494edc0b0f516b979b50147b9ef95",
+   "predictedAtMs": 1785918522689,
+   "rewardTrx": 43.03,
+   "netTrx": 30.38,
+   "fired": false
+  },
+  {
+   "renter": "0x24d2250fad9fb9a98a6e96ce267c1880a578eea6",
+   "receiver": "0x9b9869a60dbae0b6d785cb49967c99be99db5040",
+   "predictedAtMs": 1786010887689,
+   "rewardTrx": 22.62,
+   "netTrx": 9.97,
+   "fired": false
+  },
+  {
+   "renter": "0xf60d8348d623ad81a0edea4fb57f885689ce8a0d",
+   "receiver": "0xf7526a8d6a1deba854652250d366045c5c0fb26c",
+   "predictedAtMs": 1786025843689,
+   "rewardTrx": 86.05,
+   "netTrx": 73.4,
+   "fired": false
+  },
+  {
+   "renter": "0xf60d8348d623ad81a0edea4fb57f885689ce8a0d",
+   "receiver": "0x13695478ff8e129b8cb09d9779f4afbee2a31b99",
+   "predictedAtMs": 1786038613689,
+   "rewardTrx": 84.3,
+   "netTrx": 71.65,
+   "fired": false
+  },
+  {
+   "renter": "0xf60d8348d623ad81a0edea4fb57f885689ce8a0d",
    "receiver": "0xa1a0638975160b1321e837a2457b7f4b8d29e1c1",
-   "predictedAtMs": 1785814829311,
+   "predictedAtMs": 1786044129689,
    "rewardTrx": 42.15,
    "netTrx": 29.5,
    "fired": false
@@ -28,79 +68,47 @@
   {
    "renter": "0x690e4eb506080de9eff73faeb77db7fbb4e3b42a",
    "receiver": "0x0b36320849d8dbbf6807e20509c53875c06a5e1b",
-   "predictedAtMs": 1785814829311,
+   "predictedAtMs": 1786057220689,
    "rewardTrx": 104.53,
    "netTrx": 91.88,
    "fired": false
   },
   {
-   "renter": "0x2d3c8018c1b4cd46c9e431cda4555daadb72e324",
-   "receiver": "0x50480ca30cb57661eea33c050387559458306b40",
-   "predictedAtMs": 1785814829311,
-   "rewardTrx": 422.46,
-   "netTrx": 409.81,
-   "fired": false
-  },
-  {
-   "renter": "0x3ac0ee7755d84996e8330f7a2e63ff1174823e51",
-   "receiver": "0x47ca58f8aab1b6de509f1051a40b537e059ff790",
-   "predictedAtMs": 1785814829311,
-   "rewardTrx": 84.5,
-   "netTrx": 71.85,
-   "fired": false
-  },
-  {
-   "renter": "0xf60d8348d623ad81a0edea4fb57f885689ce8a0d",
-   "receiver": "0xcc4560175197519db277d3f25f3e33a8d15b3ba4",
-   "predictedAtMs": 1785814829311,
-   "rewardTrx": 84.3,
-   "netTrx": 71.65,
-   "fired": false
-  },
-  {
-   "renter": "0xf60d8348d623ad81a0edea4fb57f885689ce8a0d",
-   "receiver": "0x13695478ff8e129b8cb09d9779f4afbee2a31b99",
-   "predictedAtMs": 1785814829311,
-   "rewardTrx": 84.3,
-   "netTrx": 71.65,
-   "fired": false
-  },
-  {
-   "renter": "0xd77656a9c28594d764887df1538da8946b83d580",
-   "receiver": "0x850d967c082bf65d02a0519582b766b0799184dd",
-   "predictedAtMs": 1785814829311,
-   "rewardTrx": 845.18,
-   "netTrx": 832.53,
-   "fired": false
-  },
-  {
-   "renter": "0xd77656a9c28594d764887df1538da8946b83d580",
-   "receiver": "0x151e0a053db9925a25e399699fd29a1587413fd7",
-   "predictedAtMs": 1785814829311,
-   "rewardTrx": 842.2,
-   "netTrx": 829.55,
+   "renter": "0x24d2250fad9fb9a98a6e96ce267c1880a578eea6",
+   "receiver": "0xeae9cf1eda7c844d782ced1aff3f509eeb7f2824",
+   "predictedAtMs": 1786205231689,
+   "rewardTrx": 20,
+   "netTrx": 7.35,
    "fired": false
   },
   {
    "renter": "0xd77656a9c28594d764887df1538da8946b83d580",
    "receiver": "0x7f22360de0c4884b625c0198a8a8e36691a6e2fa",
-   "predictedAtMs": 1785814829311,
+   "predictedAtMs": 1786416930689,
    "rewardTrx": 860.47,
    "netTrx": 847.82,
    "fired": false
   },
   {
+   "renter": "0xd77656a9c28594d764887df1538da8946b83d580",
+   "receiver": "0x151e0a053db9925a25e399699fd29a1587413fd7",
+   "predictedAtMs": 1786436135689,
+   "rewardTrx": 842.2,
+   "netTrx": 829.55,
+   "fired": false
+  },
+  {
    "renter": "0xfb9f76c8c8d25af4e214dc2d83ec4011b64556e2",
-   "receiver": "0xc7c93ae3a0602925cf4892959782346e4956e848",
-   "predictedAtMs": 1786971190311,
+   "receiver": "0xbd145a5210581e8551de2da2bfd40fb548fac981",
+   "predictedAtMs": 1788537568689,
    "rewardTrx": 20,
    "netTrx": 7.35,
    "fired": false
   },
   {
    "renter": "0xfb9f76c8c8d25af4e214dc2d83ec4011b64556e2",
-   "receiver": "0x11227757e733c20156f6aad795a81acbf4129ac8",
-   "predictedAtMs": 1786972121311,
+   "receiver": "0xc7c93ae3a0602925cf4892959782346e4956e848",
+   "predictedAtMs": 1788541635689,
    "rewardTrx": 20,
    "netTrx": 7.35,
    "fired": false
@@ -108,7 +116,7 @@
   {
    "renter": "0xfb9f76c8c8d25af4e214dc2d83ec4011b64556e2",
    "receiver": "0x705a9328d26d8f3c173f8b479d09f767cabf07cf",
-   "predictedAtMs": 1787006175311,
+   "predictedAtMs": 1788691405689,
    "rewardTrx": 20,
    "netTrx": 7.35,
    "fired": false
@@ -116,39 +124,15 @@
   {
    "renter": "0xfb9f76c8c8d25af4e214dc2d83ec4011b64556e2",
    "receiver": "0x32a5b86025b013aabf9a33681e00cd62fa28b86d",
-   "predictedAtMs": 1787006237311,
+   "predictedAtMs": 1788702705689,
    "rewardTrx": 20,
    "netTrx": 7.35,
    "fired": false
   },
   {
    "renter": "0xfb9f76c8c8d25af4e214dc2d83ec4011b64556e2",
-   "receiver": "0xbd145a5210581e8551de2da2bfd40fb548fac981",
-   "predictedAtMs": 1787006489311,
-   "rewardTrx": 20,
-   "netTrx": 7.35,
-   "fired": false
-  },
-  {
-   "renter": "0xfb9f76c8c8d25af4e214dc2d83ec4011b64556e2",
-   "receiver": "0xd1fceeb55282a66d198b4a4adf916a97da5b1cb1",
-   "predictedAtMs": 1787006615311,
-   "rewardTrx": 25.35,
-   "netTrx": 12.7,
-   "fired": false
-  },
-  {
-   "renter": "0x24d2250fad9fb9a98a6e96ce267c1880a578eea6",
-   "receiver": "0x9b9869a60dbae0b6d785cb49967c99be99db5040",
-   "predictedAtMs": 1787178766311,
-   "rewardTrx": 20,
-   "netTrx": 7.35,
-   "fired": false
-  },
-  {
-   "renter": "0x24d2250fad9fb9a98a6e96ce267c1880a578eea6",
-   "receiver": "0xeae9cf1eda7c844d782ced1aff3f509eeb7f2824",
-   "predictedAtMs": 1787501533311,
+   "receiver": "0x11227757e733c20156f6aad795a81acbf4129ac8",
+   "predictedAtMs": 1788708820689,
    "rewardTrx": 20,
    "netTrx": 7.35,
    "fired": false
@@ -156,7 +140,7 @@
   {
    "renter": "0xd96ea6253be584d75af6d0186ebc7a09795a6b80",
    "receiver": "0x8ddff84096bb689fc7c1b71b5908cd117f2d1651",
-   "predictedAtMs": 1952358136311,
+   "predictedAtMs": 1902443521689,
    "rewardTrx": 20,
    "netTrx": 7.35,
    "fired": false
