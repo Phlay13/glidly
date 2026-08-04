@@ -2,3 +2,10 @@
 {"ts":1782513490230,"type":"returned","key":"0xc934a850f2d8e6b735ad5ac8d5c965577be1ef54:0xe6b7e1db51b8c8c4985a559c184f2f423000967c:1","wouldBeRewardTrx":519.56616,"watched":false}
 {"ts":1782516355967,"type":"returned","key":"0xfeb1363908cf2b3a5f6d90222a7e8c0622b9d19e:0xe32e595ae1983f8f4b1d197d83844483c84305a9:1","wouldBeRewardTrx":168.53704,"watched":false}
 {"ts":1782519307931,"type":"returned","key":"0xfeb1363908cf2b3a5f6d90222a7e8c0622b9d19e:0xfeb1363908cf2b3a5f6d90222a7e8c0622b9d19e:1","wouldBeRewardTrx":168.53712,"watched":false}
+{"ts":1785853392425,"type":"unseen_liq","key":"f7f7ba62cddddb89f177099c9d91f945068ea805:f7f7ba62cddddb89f177099c9d91f945068ea805:1","rewardTrx":20,"takenAtMs":1785822252000,"takenBy":"TEFVYGkweofAr7H5wQuK8v7MjrTe3MpwpE"}
+{"ts":1785853392447,"type":"missed","key":"76993a4adcf12c4d7ac892666cc7566e6fcea866:76993a4adcf12c4d7ac892666cc7566e6fcea866:1","rewardTrx":25.05056,"takenAtMs":1785839394000,"takenBy":"TEFVYGkweofAr7H5wQuK8v7MjrTe3MpwpE","watched":false}
+{"ts":1785853392452,"type":"missed","key":"6da81e7132db539c3b9959cbc83e7e12d7857080:6da81e7132db539c3b9959cbc83e7e12d7857080:1","rewardTrx":20,"takenAtMs":1785840702000,"takenBy":"TJ6Ek7BF5adpkUGZXbb1rS8yRdF28z8Xvi","watched":false}
+{"ts":1785853392457,"type":"missed","key":"6e070118b478a8bae4ac6ce94b9c65884ddc6e66:8b58ef518ed6ff624b3d2f9a80fce891363cb94a:1","rewardTrx":20,"takenAtMs":1785852189000,"takenBy":"TEFVYGkweofAr7H5wQuK8v7MjrTe3MpwpE","watched":false}
+{"ts":1785853392472,"type":"missed","key":"cda02ca03a428571d65739f47eea9f043e3f9a17:cda02ca03a428571d65739f47eea9f043e3f9a17:1","rewardTrx":541.90952,"takenAtMs":1785853071000,"takenBy":"TBawGUFdwtjNMmgNC3GtzXjxnDt3UEAihR","watched":false}
+{"ts":1785853392528,"type":"returned","key":"feb1363908cf2b3a5f6d90222a7e8c0622b9d19e:0b7d35b88675989e2243a42c22318f0c00671fba:1","wouldBeRewardTrx":500.9172,"watched":false}
+{"ts":1785856698316,"type":"returned","key":"979d1b6b904484354b723a57b143318221b78eda:4f6cc99bc97e377fe00785d9cd19ca439ca1e7ce:1","wouldBeRewardTrx":167.20808,"watched":false}

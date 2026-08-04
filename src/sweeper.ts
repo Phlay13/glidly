@@ -86,6 +86,11 @@ class Sweeper {
   async start(): Promise<void> {
     log(`Glidly sweeper — mode=${EXEC_ENABLED ? 'LIVE' : 'PAPER'} interval=${INTERVAL_MS / 1000}s backfill=${BACKFILL_DAYS}d watch=[${WATCH.join(',') || 'none'}]`);
     if (EXEC_ENABLED) log('LIVE requested but broadcast path not enabled yet (needs seed + key). Staying safe.');
+    // Hard exit guard: RPC stalls must never push a CI run into the job timeout (which kills the
+    // whole run as "cancelled"). Exit 0 — the ledger/status on disk are always consistent.
+    if (MAX_RUNTIME_MS) {
+      setTimeout(() => { log('hard wall-clock limit — exiting cleanly'); process.exit(0); }, MAX_RUNTIME_MS);
+    }
     // Free RPCs (TronGrid) rate-limit and time out sporadically — never die on bootstrap, retry.
     for (let attempt = 1; ; attempt++) {
       try {
