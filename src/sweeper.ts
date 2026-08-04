@@ -279,6 +279,7 @@ class Sweeper {
         const info = await this.reader.getRentInfo(o.renter, o.receiver, o.resourceType);
         if (!info || info.securityDepositSun <= 0n) {
           log(`✂ closed on-chain: ${o.key.slice(0, 10)}… (deposit 0) — dropping`);
+          appendLedger({ ts: now, type: 'order_closed', key: o.key, predictedRewardTrx: o.rewardTrx });
           this.orders.delete(o.key);
         } else {
           o.depositSun = info.securityDepositSun;
@@ -287,6 +288,7 @@ class Sweeper {
           this.predict(o, mp, now);
           const eta = o.predictedAtMs ? fmtEta(o.predictedAtMs - now) : '∞';
           log(`↻ refreshed ${o.key.slice(0, 10)}… deposit=${sunToTrx(info.securityDepositSun).toFixed(0)} TRX → real ETA ${eta}`);
+          appendLedger({ ts: now, type: 'recheck', key: o.key, depositTrx: Number(sunToTrx(info.securityDepositSun).toFixed(0)), newEtaMs: o.predictedAtMs, rewardTrx: Number(o.rewardTrx.toFixed(2)) });
         }
         continue;
       }

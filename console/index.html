@@ -170,6 +170,9 @@ const RAW = "https://raw.githubusercontent.com/Phlay13/glidly/main/data/";
 const $ = id => document.getElementById(id);
 const fmt = (n, d=1) => Number(n).toLocaleString(undefined, {maximumFractionDigits: d});
 let status = null, chainOk = true;
+/* only touch the DOM when content actually changed — no flicker */
+const lastHtml = {};
+function setBody(id, html){ if(lastHtml[id] !== html){ lastHtml[id] = html; $(id).innerHTML = html; } }
 
 /* hex (0x…20B) → Tron base58check */
 const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -232,10 +235,10 @@ async function loadStatus(){
           <td><span class="tag ${ripe ? "fire" : "watch"}">${ripe ? "QUEUED" : "TRACKING"}</span></td>
         </tr>`;
       }));
-      $("upBody").innerHTML = rows.join("");
-    } else $("upBody").innerHTML = '<tr><td colspan="5" class="empty">no open orders approaching liquidation</td></tr>';
+      setBody("upBody", rows.join(""));
+    } else setBody("upBody", '<tr><td colspan="5" class="empty">no open orders approaching liquidation</td></tr>');
   }catch{
-    $("upBody").innerHTML = '<tr><td colspan="5" class="empty">sweep feed publishes after next GitHub run — chain feeds below are live</td></tr>';
+    setBody("upBody", '<tr><td colspan="5" class="empty">sweep feed publishes after next GitHub run — chain feeds below are live</td></tr>');
   }
 }
 
@@ -250,7 +253,7 @@ async function loadLedger(){
     rows.forEach(e => { if((e.type === "paper_fire" || e.type === "live_fire") && e.ts >= wk) pnl += (e.netTrx || 0); });
     $("kPnl").textContent = (pnl >= 0 ? "+" : "") + fmt(pnl);
     $("ledCnt").textContent = rows.length + " entries";
-    const tag = {would_win:'<span class="tag win">WOULD-WIN</span>',missed:'<span class="tag miss">MISSED</span>',paper_fire:'<span class="tag fire">PAPER FIRE</span>',live_fire:'<span class="tag fire">LIVE FIRE</span>',unseen_liq:'<span class="tag eye">UNSEEN</span>',returned:'<span class="tag ret">RETURNED</span>'};
+    const tag = {would_win:'<span class="tag win">WOULD-WIN</span>',missed:'<span class="tag miss">MISSED</span>',paper_fire:'<span class="tag fire">PAPER FIRE</span>',live_fire:'<span class="tag fire">LIVE FIRE</span>',unseen_liq:'<span class="tag eye">UNSEEN</span>',recheck:'<span class="tag watch">RE-CHECK</span>',order_closed:'<span class="tag ret">CLOSED</span>',returned:'<span class="tag ret">RETURNED</span>'};
     const rec = rows.slice(-60).reverse();
     const html = await Promise.all(rec.map(async e => {
       const by = e.takenBy ? shortT(e.takenBy.startsWith("T") ? e.takenBy : await toT(e.takenBy)) : "—";
@@ -263,14 +266,14 @@ async function loadLedger(){
         <td class="addr">${by}</td>
       </tr>`;
     }));
-    $("ledBody").innerHTML = html.length ? html.join("") : '<tr><td colspan="6" class="empty">ledger empty — sweep just started</td></tr>';
-  }catch{ $("ledBody").innerHTML = '<tr><td colspan="6" class="empty">ledger publishes with the next sweep commit</td></tr>'; }
+    setBody("ledBody", html.length ? html.join("") : '<tr><td colspan="6" class="empty">ledger empty — sweep just started</td></tr>');
+  }catch{ setBody("ledBody", '<tr><td colspan="6" class="empty">ledger publishes with the next sweep commit</td></tr>'); }
 }
 
 /* ── LIVE on-chain feeds (direct TronGrid, no backend) ── */
 let seenLiq = new Set(), seenRent = new Set();
 async function loadChain(){
-  $("feedH").classList.add("loading"); $("rentH").classList.add("loading");
+  
   try{
     const since24 = Date.now() - 86400e3, since7d = Date.now() - 7*86400e3;
     const [liqR, rentR] = await Promise.all([
@@ -299,7 +302,7 @@ async function loadChain(){
         <td class="r gold">${fmt(Number(e.result.liquidateFee||0)/1e6)} TRX</td>
       </tr>`;
     }));
-    $("feedBody").innerHTML = lh.join("") || '<tr><td colspan="3" class="empty">no liquidations in window</td></tr>';
+    setBody("feedBody", lh.join("") || '<tr><td colspan="3" class="empty">no liquidations in window</td></tr>');
 
     const rh = await Promise.all(rents.slice(0,30).map(async e => {
       const id = e.transaction_id + e.event_index, fresh = !seenRent.has(id) && seenRent.size > 0;
@@ -312,9 +315,9 @@ async function loadChain(){
         <td class="r mut">${fmt(dep,0)} TRX</td>
       </tr>`;
     }));
-    $("rentBody").innerHTML = rh.join("") || '<tr><td colspan="3" class="empty">—</td></tr>';
+    setBody("rentBody", rh.join("") || '<tr><td colspan="3" class="empty">—</td></tr>');
   }catch(e){ setConn(false); }
-  $("feedH").classList.remove("loading"); $("rentH").classList.remove("loading");
+  
   $("footStat").textContent = "chain " + (chainOk ? "OK" : "RETRY") + " · refreshed " + new Date().toISOString().slice(11,19) + " UTC · auto 30s";
 }
 
