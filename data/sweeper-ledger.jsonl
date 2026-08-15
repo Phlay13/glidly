@@ -18,3 +18,4 @@
 {"ts":1785866473168,"type":"returned","key":"d931eb0dbc0fb38039437f4bbcedaebe12713017:f1e4436fe066b6e57098ffc66b16bd91a23fcd7b:1","wouldBeRewardTrx":3762.22768,"watched":false}
 {"ts":1785874824942,"type":"recheck","key":"dd6ea6647f89bfdb690d207d15c0496dd64a7df1:6be35b3c719700cf3719bf2f0bf3620751ea9529:1","depositTrx":22041,"newEtaMs":1785885234942,"rewardTrx":2464.87}
 {"ts":1785874824942,"type":"recheck","key":"d77656a9c28594d764887df1538da8946b83d580:7f22360de0c4884b625c0198a8a8e36691a6e2fa:1","depositTrx":48861,"newEtaMs":1786448798942,"rewardTrx":860.47}
+{"ts":1786801749382,"type":"order_closed","key":"d77656a9c28594d764887df1538da8946b83d580:ea2748d0c69d9fb7467ac2a5fd74251be870f2b1:1","predictedRewardTrx":1266.6216}
